@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Module</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: #ffffff;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    /* ================= HEADER ================= */
+
+    header {
+      background: #1a1a1a;
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+    }
+
+    header h1 {
+      font-family: Georgia, serif;
+      font-size: 1.25rem;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    .admin-badge {
+      background: #1976d2;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    /* ================= MAIN ================= */
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px;
+      color: #ffffff;
+    }
+
+    /* ================= SUMMARY ================= */
+
+    .summary-card {
+      width: 310px;
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .summary-amount {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #d4a017;
+    }
+
+    .summary-label {
+      margin-top: 4px;
+      color: #aaa;
+      font-size: 0.85rem;
+    }
+
+    /* ================= PAYMENT ================= */
+
+    .payment-section {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .payment-section h2 {
+      font-family: Georgia, serif;
+      font-size: 1.15rem;
+      margin-bottom: 20px;
+    }
+
+    .payment-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .order-info {
+      background: #242424;
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .order-label {
+      color: #999;
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+    }
+
+    .order-number {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .amount-due {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #d4a017;
+    }
+
+    /* ================= PAYMENT FORM ================= */
+
+    .payment-form {
+      background: #242424;
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .payment-form label {
+      display: block;
+      color: #aaa;
+      font-size: 0.85rem;
+      margin-bottom: 7px;
+    }
+
+    .payment-form input {
+      width: 100%;
+      padding: 11px;
+      background: #2d2d2d;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 6px;
+      font-size: 1rem;
+      margin-bottom: 15px;
+    }
+
+    /* ================= PAYMENT METHOD ================= */
+
+    .method-buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .method-btn {
+      flex: 1;
+      padding: 10px;
+      background: #333;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .method-btn:hover {
+      background: #444;
+    }
+
+    .method-btn.active {
+      background: #d4a017;
+      color: #111;
+      border-color: #d4a017;
+    }
+
+    /* ================= CHANGE ================= */
+
+    .change-box {
+      background: #302a18;
+      border: 1px solid #6b5416;
+      border-radius: 6px;
+      padding: 13px;
+      margin-bottom: 15px;
+    }
+
+    .change-label {
+      color: #aaa;
+      font-size: 0.8rem;
+    }
+
+    .change-value {
+      color: #d4a017;
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-top: 3px;
+    }
+
+    /* ================= BUTTON ================= */
+
+    .confirm-btn {
+      width: 100%;
+      padding: 11px;
+      background: #d4a017;
+      color: #111;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .confirm-btn:hover {
+      background: #e0b020;
+    }
+
+    /* ================= CARD ================= */
+
+    .card-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* ================= TRANSACTIONS ================= */
+
+    .section {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    .section h2 {
+      font-family: Georgia, serif;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .transaction-header,
+    .transaction-row {
+      display: grid;
+      grid-template-columns:
+        1.4fr
+        1.7fr
+        0.8fr
+        0.8fr
+        0.7fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .transaction-header {
+      color: #aaa;
+      font-size: 0.85rem;
+      padding: 10px 14px;
+      border-bottom: 1px solid #333;
+    }
+
+    .transaction-row {
+      padding: 12px 14px;
+      border-bottom: 1px solid #333;
+      font-size: 0.9rem;
+    }
+
+    .transaction-row:last-child {
+      border-bottom: none;
+    }
+
+    .empty-message {
+      text-align: center;
+      color: #888;
+      padding: 35px 10px;
+      font-size: 0.9rem;
+    }
+
+    /* ================= RESPONSIVE ================= */
+
+    @media (max-width: 700px) {
+
+      .payment-content {
+        grid-template-columns: 1fr;
+      }
+
+      .transaction-header {
+        display: none;
+      }
+
+      .transaction-row {
+        grid-template-columns: 1fr;
+        gap: 5px;
+        padding: 15px;
+      }
+
+      .summary-card {
+        width: 100%;
+      }
+
+      main {
+        padding: 16px;
+      }
+
+      .card-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ================= HEADER ================= -->
+
+  <header>
+
+    <h1>Payment Module</h1>
+
+    <div class="header-right">
+
+      <span id="current-date"></span>
+
+      <span class="admin-badge">
+        ADMIN
+      </span>
+
+    </div>
+
+  </header>
+
+
+  <main>
+
+    <!-- ================= TOTAL CASH ================= -->
+
+    <div class="summary-card">
+
+      <div
+        class="summary-amount"
+        id="total-cash"
+      >
+        ₱840
+      </div>
+
+      <div class="summary-label">
+        CASH
+      </div>
+
+    </div>
+
+
+    <!-- ================= PAYMENT ================= -->
+
+    <div class="payment-section">
+
+      <h2>Payment</h2>
+
+      <div class="payment-content">
+
+        <!-- ================= ORDER INFORMATION ================= -->
+
+        <div class="order-info">
+
+          <div class="order-label">
+            Order #
+          </div>
+
+          <div
+            class="order-number"
+            id="payment-order-number"
+          >
+            #1003
+          </div>
+
+          <div class="order-label">
+            Amount Due
+          </div>
+
+          <div
+            class="amount-due"
+            id="payment-total"
+          >
+            ₱450
+          </div>
+
+        </div>
+
+
+        <!-- ================= PAYMENT FORM ================= -->
+
+        <div class="payment-form">
+
+          <label>
+            Payment Method
+          </label>
+
+          <div class="method-buttons">
+
+            <button
+              class="method-btn active"
+              onclick="selectMethod('cash')"
+              id="cash-btn"
+            >
+              Cash
+            </button>
+
+            <button
+              class="method-btn"
+              onclick="selectMethod('card')"
+              id="card-btn"
+            >
+              Card
+            </button>
+
+          </div>
+
+
+          <!-- ================= CASH PAYMENT ================= -->
+
+          <div id="cash-payment">
+
+            <label>
+              Cash Received
+            </label>
+
+            <input
+              type="number"
+              id="cash-received"
+              value="500"
+              min="0"
+              oninput="calculateChange()"
+            >
+
+            <div class="change-box">
+
+              <div class="change-label">
+                Change
+              </div>
+
+              <div
+                class="change-value"
+                id="change-value"
+              >
+                ₱50
+              </div>
+
+            </div>
+
+            <button
+              class="confirm-btn"
+              onclick="confirmCashPayment()"
+            >
+              Confirm Cash Payment
+            </button>
+
+          </div>
+
+
+          <!-- ================= CARD PAYMENT ================= -->
+
+          <div
+            id="card-payment"
+            style="display:none;"
+          >
+
+            <label>
+              Card Number
+            </label>
+
+            <input
+              type="text"
+              id="card-number"
+              placeholder="Enter card number"
+              maxlength="19"
+            >
+
+            <label>
+              Cardholder Name
+            </label>
+
+            <input
+              type="text"
+              id="card-name"
+              placeholder="Enter cardholder name"
+            >
+
+            <div class="card-row">
+
+              <div>
+
+                <label>
+                  Expiry Date
+                </label>
+
+                <input
+                  type="text"
+                  id="card-expiry"
+                  placeholder="MM/YY"
+                  maxlength="5"
+                >
+
+              </div>
+
+              <div>
+
+                <label>
+                  CVV
+                </label>
+
+                <input
+                  type="password"
+                  id="card-cvv"
+                  placeholder="CVV"
+                  maxlength="4"
+                >
+
+              </div>
+
+            </div>
+
+
+            <button
+              class="confirm-btn"
+              onclick="confirmCardPayment()"
+            >
+              Confirm Card Payment
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================= RECENT TRANSACTIONS ================= -->
+
+    <div class="section">
+
+      <h2>
+        Recent Transactions
+      </h2>
+
+      <div class="transaction-header">
+
+        <div>
+          Order #
+        </div>
+
+        <div>
+          Date
+        </div>
+
+        <div>
+          Method
+        </div>
+
+        <div>
+          Amount
+        </div>
+
+        <div>
+          Change
+        </div>
+
+      </div>
+
+
+      <div id="transaction-list"></div>
+
+    </div>
+
+  </main>
+
+
+  <script>
+
+    // ==================================================
+    // DATA STRUCTURES
+    // ==================================================
+
+    /*
+      ARRAY
+
+      Stores all completed transactions.
+    */
+
+    let transactions = [
+
+      {
+        orderNo: "#1001",
+        date: "9/22/2026, 6:45:10 PM",
+        method: "cash",
+        amount: 280,
+        change: 220
+      },
+
+      {
+        orderNo: "#1002",
+        date: "9/22/2026, 6:50:32 PM",
+        method: "cash",
+        amount: 560,
+        change: 40
+      }
+
+    ];
+
+
+    /*
+      MAP
+
+      Stores transactions using
+      the Order Number as the key.
+
+      Example:
+
+      #1001 → transaction
+      #1002 → transaction
+    */
+
+    let transactionMap = new Map();
+
+
+    /*
+      CURRENT ORDER
+
+      This represents the order
+      currently sent from the POS.
+    */
+
+    let currentOrder = {
+
+      orderNo: "#1003",
+
+      total: 450
+
+    };
+
+
+    /*
+      Stores the currently selected
+      payment method.
+    */
+
+    let selectedMethod = "cash";
+
+
+    // ==================================================
+    // ADD TRANSACTIONS TO MAP
+    // ==================================================
+
+    transactions.forEach(transaction => {
+
+      transactionMap.set(
+        transaction.orderNo,
+        transaction
+      );
+
+    });
+
+
+    // ==================================================
+    // CURRENT DATE
+    // ==================================================
+
+    document.getElementById(
+      "current-date"
+    ).textContent =
+
+      new Date().toLocaleDateString(
+        "en-US",
+        {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        }
+      );
+
+
+    // ==================================================
+    // SELECT PAYMENT METHOD
+    // ==================================================
+
+    function selectMethod(method) {
+
+      selectedMethod = method;
+
+
+      /*
+        Remove active state
+        from all buttons.
+      */
+
+      document.querySelectorAll(
+        ".method-btn"
+      ).forEach(button => {
+
+        button.classList.remove(
+          "active"
+        );
+
+      });
+
+
+      /*
+        Add active state to
+        selected button.
+      */
+
+      document.getElementById(
+        method + "-btn"
+      ).classList.add(
+        "active"
+      );
+
+
+      /*
+        Hide both payment sections.
+      */
+
+      document.getElementById(
+        "cash-payment"
+      ).style.display = "none";
+
+      document.getElementById(
+        "card-payment"
+      ).style.display = "none";
+
+
+      /*
+        Show selected payment section.
+      */
+
+      document.getElementById(
+        method + "-payment"
+      ).style.display = "block";
+
+    }
+
+
+    // ==================================================
+    // CALCULATE CASH CHANGE
+    // ==================================================
+
+    function calculateChange() {
+
+      const cash =
+
+        parseFloat(
+          document.getElementById(
+            "cash-received"
+          ).value
+        ) || 0;
+
+
+      const total =
+        currentOrder.total;
+
+
+      /*
+        CHANGE ALGORITHM
+
+        Change =
+        Cash Received - Amount Due
+      */
+
+      const change =
+        cash - total;
+
+
+      if (cash < total) {
+
+        document.getElementById(
+          "change-value"
+        ).textContent =
+          "Insufficient";
+
+      }
+
+      else {
+
+        document.getElementById(
+          "change-value"
+        ).textContent =
+          "₱" + change;
+
+      }
+
+    }
+
+
+    // ==================================================
+    // CONFIRM CASH PAYMENT
+    // ==================================================
+
+    function confirmCashPayment() {
+
+      const cash =
+
+        parseFloat(
+          document.getElementById(
+            "cash-received"
+          ).value
+        ) || 0;
+
+
+      const total =
+        currentOrder.total;
+
+
+      /*
+        Check if the customer
+        gave enough cash.
+      */
+
+      if (cash < total) {
+
+        alert(
+          "Cash received is not enough."
+        );
+
+        return;
+
+      }
+
+
+      const change =
+        cash - total;
+
+
+      /*
+        Create a transaction
+        after successful payment.
+      */
+
+      createTransaction(
+        "cash",
+        total,
+        change
+      );
+
+    }
+
+
+    // ==================================================
+    // CONFIRM CARD PAYMENT
+    // ==================================================
+
+    function confirmCardPayment() {
+
+      const cardNumber =
+
+        document.getElementById(
+          "card-number"
+        ).value.trim();
+
+
+      const cardName =
+
+        document.getElementById(
+          "card-name"
+        ).value.trim();
+
+
+      const expiry =
+
+        document.getElementById(
+          "card-expiry"
+        ).value.trim();
+
+
+      const cvv =
+
+        document.getElementById(
+          "card-cvv"
+        ).value.trim();
+
+
+      /*
+        Make sure all required
+        card fields are completed.
+      */
+
+      if (
+        !cardNumber ||
+        !cardName ||
+        !expiry ||
+        !cvv
+      ) {
+
+        alert(
+          "Please complete the card information."
+        );
+
+        return;
+
+      }
+
+
+      /*
+        Card payment is considered
+        completed for this demo.
+      */
+
+      createTransaction(
+        "card",
+        currentOrder.total,
+        0
+      );
+
+    }
+
+
+    // ==================================================
+    // CREATE TRANSACTION
+    // ==================================================
+
+    function createTransaction(
+      method,
+      amount,
+      change
+    ) {
+
+      /*
+        Create transaction object.
+      */
+
+      const transaction = {
+
+        orderNo:
+          currentOrder.orderNo,
+
+        date:
+          new Date().toLocaleString(),
+
+        method:
+          method,
+
+        amount:
+          amount,
+
+        change:
+          change
+
+      };
+
+
+      // ==================================================
+      // ARRAY
+      // ==================================================
+
+      /*
+        Add completed transaction
+        to the Array.
+      */
+
+      transactions.push(
+        transaction
+      );
+
+
+      // ==================================================
+      // MAP
+      // ==================================================
+
+      /*
+        Store transaction using
+        Order Number as the key.
+      */
+
+      transactionMap.set(
+        transaction.orderNo,
+        transaction
+      );
+
+
+      // ==================================================
+      // UPDATE DISPLAY
+      // ==================================================
+
+      renderTransactions();
+
+      updateTotalCash();
+
+
+      alert(
+        "Payment completed successfully!"
+      );
+
+
+      /*
+        Generate another sample
+        order for demonstration.
+      */
+
+      currentOrder = {
+
+        orderNo:
+          "#100" +
+          (transactions.length + 1),
+
+        total:
+          350
+
+      };
+
+
+      /*
+        Update the displayed
+        order information.
+      */
+
+      document.getElementById(
+        "payment-order-number"
+      ).textContent =
+        currentOrder.orderNo;
+
+
+      document.getElementById(
+        "payment-total"
+      ).textContent =
+        "₱" + currentOrder.total;
+
+
+      /*
+        Reset cash input.
+      */
+
+      document.getElementById(
+        "cash-received"
+      ).value = 500;
+
+
+      /*
+        Reset card fields.
+      */
+
+      document.getElementById(
+        "card-number"
+      ).value = "";
+
+      document.getElementById(
+        "card-name"
+      ).value = "";
+
+      document.getElementById(
+        "card-expiry"
+      ).value = "";
+
+      document.getElementById(
+        "card-cvv"
+      ).value = "";
+
+
+      /*
+        Return to Cash payment
+        for the next sample order.
+      */
+
+      selectMethod("cash");
+
+      calculateChange();
+
+    }
+
+
+    // ==================================================
+    // RENDER TRANSACTIONS
+    // ==================================================
+
+    function renderTransactions(
+      data = transactions
+    ) {
+
+      const list =
+        document.getElementById(
+          "transaction-list"
+        );
+
+
+      if (data.length === 0) {
+
+        list.innerHTML = `
+
+          <div class="empty-message">
+
+            No transactions found
+
+          </div>
+
+        `;
+
+        return;
+
+      }
+
+
+      /*
+        ARRAY MAP
+
+        Convert transaction objects
+        into HTML rows.
+      */
+
+      list.innerHTML =
+
+        data.map(transaction => `
+
+          <div class="transaction-row">
+
+            <div>
+              ${transaction.orderNo}
+            </div>
+
+            <div>
+              ${transaction.date}
+            </div>
+
+            <div>
+              ${transaction.method}
+            </div>
+
+            <div>
+              ₱${transaction.amount}
+            </div>
+
+            <div>
+              ₱${transaction.change}
+            </div>
+
+          </div>
+
+        `).join("");
+
+    }
+
+
+    // ==================================================
+    // TOTAL CASH
+    // ==================================================
+
+    function updateTotalCash() {
+
+      let total = 0;
+
+
+      /*
+        Traverse the Array
+        to calculate total completed
+        payment amounts.
+      */
+
+      for (
+        let transaction of transactions
+      ) {
+
+        total +=
+          transaction.amount;
+
+      }
+
+
+      document.getElementById(
+        "total-cash"
+      ).textContent =
+        "₱" + total;
+
+    }
+
+
+    // ==================================================
+    // INITIAL DISPLAY
+    // ==================================================
+
+    renderTransactions();
+
+    updateTotalCash();
+
+    calculateChange();
+
+  </script>
+
+</body>
+</html>
