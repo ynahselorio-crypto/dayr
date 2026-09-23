@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Table / Floor Management</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f0f0f; color: #fff; min-height: 100vh; }
+
+    /* Header */
+    header {
+      background: #1a1a1a;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+    }
+    header h1 { font-size: 1.25rem; font-weight: 600; }
+    .header-right { display: flex; align-items: center; gap: 16px; font-size: 0.9rem; color: #aaa; }
+    .admin-badge {
+      background: #3b82f6;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Main */
+    main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+    .section-title { color: #888; font-size: 0.9rem; margin-bottom: 16px; }
+
+    /* Floor Plan */
+    .floor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .add-btn {
+      background: #d4a017;
+      color: #111;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .add-btn:hover { background: #e0b020; }
+
+    .tables-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .table-card {
+      width: 110px;
+      height: 100px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: 3px solid transparent;
+      user-select: none;
+    }
+    .table-card:hover { transform: translateY(-3px); }
+    .table-card .id { font-size: 1.3rem; font-weight: 700; }
+    .table-card .status { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+    .table-card .seats { font-size: 0.75rem; opacity: 0.7; }
+
+    /* Status colors */
+    .available { background: #1a2e1a; border-color: #22c55e; }
+    .occupied  { background: #2e1a1a; border-color: #ef4444; }
+    .reserved  { background: #2e2a1a; border-color: #f59e0b; }
+
+    /* Legend */
+    .legend {
+      background: #1a1a1a;
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    .legend-title { font-weight: 600; margin-right: 12px; }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+    }
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+    }
+    .dot.available { background: #22c55e; }
+    .dot.occupied  { background: #ef4444; }
+    .dot.reserved  { background: #f59e0b; }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .controls input, .controls select, .controls button {
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #222;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    .controls button {
+      background: #3b82f6;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .controls button:hover { background: #2563eb; }
+    .controls button.secondary { background: #374151; }
+    .controls button.secondary:hover { background: #4b5563; }
+
+    /* Result box */
+    .result-box {
+      background: #1a1a1a;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Waiting list */
+    .waiting-list {
+      background: #1a1a1a;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .waiting-list h3 { margin-bottom: 12px; font-size: 1rem; }
+    .waiting-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #333;
+      font-size: 0.9rem;
+    }
+    .waiting-item:last-child { border-bottom: none; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #1f1f1f;
+      border-radius: 12px;
+      padding: 24px;
+      width: 340px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .modal h2 { margin-bottom: 20px; font-size: 1.2rem; }
+    .modal label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 6px; }
+    .modal input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #2a2a2a;
+      color: #fff;
+      margin-bottom: 16px;
+      font-size: 1rem;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .modal-actions button {
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .btn-cancel { background: #374151; color: #fff; }
+    .btn-save { background: #d4a017; color: #111; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Table / Floor Management</h1>
+    <div class="header-right">
+      <span id="current-date"></span>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="floor-header">
+      <div class="section-title">Floor Plan</div>
+      <button class="add-btn" onclick="openAddModal()">+ Add Table</button>
+    </div>
+
+    <div class="tables-grid" id="tables-grid"></div>
+
+    <div class="legend">
+      <span class="legend-title">Legend</span>
+      <div class="legend-item"><div class="dot available"></div> Available</div>
+      <div class="legend-item"><div class="dot occupied"></div> Occupied</div>
+      <div class="legend-item"><div class="dot reserved"></div> Reserved</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <input type="number" id="party-size" placeholder="Party size" min="1" value="4" style="width:110px" />
+      <button onclick="findBestTable()">Find Best Table</button>
+      <button class="secondary" onclick="addToWaiting()">Add to Waiting List</button>
+      <button class="secondary" onclick="seatNextParty()">Seat Next Party</button>
+    </div>
+
+    <div class="result-box" id="result-box">
+      Click a table to cycle its status • Use the controls above for smart assignment
+    </div>
+
+    <!-- Waiting List -->
+    <div class="waiting-list">
+      <h3>Waiting List</h3>
+      <div id="waiting-list-content">No parties waiting</div>
+    </div>
+  </main>
+
+  <!-- Add Table Modal -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal">
+      <h2>Add Table</h2>
+      <label>Table Number</label>
+      <input type="text" id="new-table-id" placeholder="e.g. T9" value="T9" />
+      <label>Seats</label>
+      <input type="number" id="new-table-seats" placeholder="4" value="4" min="1" />
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+        <button class="btn-save" onclick="saveNewTable()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====================== Data Structures ======================
+    class UnionFind {
+      constructor() {
+        this.parent = new Map();
+        this.rank = new Map();
+      }
+      add(id) {
+        if (!this.parent.has(id)) {
+          this.parent.set(id, id);
+          this.rank.set(id, 0);
+        }
+      }
+      find(id) {
+        if (this.parent.get(id) !== id) {
+          this.parent.set(id, this.find(this.parent.get(id)));
+        }
+        return this.parent.get(id);
+      }
+      union(a, b) {
+        const rootA = this.find(a);
+        const rootB = this.find(b);
+        if (rootA === rootB) return;
+        const rankA = this.rank.get(rootA);
+        const rankB = this.rank.get(rootB);
+        if (rankA < rankB) this.parent.set(rootA, rootB);
+        else if (rankA > rankB) this.parent.set(rootB, rootA);
+        else {
+          this.parent.set(rootB, rootA);
+          this.rank.set(rootA, rankA + 1);
+        }
+      }
+      getGroup(id) {
+        const root = this.find(id);
+        return [...this.parent.keys()].filter(k => this.find(k) === root);
+      }
+    }
+
+    class FloorManager {
+      constructor() {
+        this.tables = new Map();
+        this.waitingList = [];
+        this.uf = new UnionFind();
+      }
+
+      addTable(id, seats, status = "available") {
+        if (this.tables.has(id)) throw new Error(`Table ${id} already exists`);
+        this.tables.set(id, { id, seats, status });
+        this.uf.add(id);
+      }
+
+      updateStatus(id, status) {
+        const t = this.tables.get(id);
+        if (t) t.status = status;
+      }
+
+      getAllTables() {
+        return Array.from(this.tables.values());
+      }
+
+      // Best-fit algorithm
+      findBestTable(partySize) {
+        const candidates = this.getAllTables()
+          .filter(t => t.status === "available" && t.seats >= partySize);
+
+        if (candidates.length === 0) return null;
+
+        candidates.sort((a, b) => {
+          const exactA = a.seats === partySize ? 0 : 1;
+          const exactB = b.seats === partySize ? 0 : 1;
+          if (exactA !== exactB) return exactA - exactB;
+          return a.seats - b.seats; // smaller is better
+        });
+        return candidates[0];
+      }
+
+      addToWaitingList(party) {
+        this.waitingList.push(party);
+      }
+
+      getNextParty() {
+        return this.waitingList.shift();
+      }
+
+      getWaitingList() {
+        return [...this.waitingList];
+      }
+
+      estimateWaitMinutes(partySize, avg = 45) {
+        const ahead = this.waitingList.filter(p => p.size <= partySize).length;
+        return ahead * avg;
+      }
+    }
+
+    // ====================== App Logic ======================
+    const manager = new FloorManager();
+
+    // Initial tables (from your screenshot)
+    const initial = [
+      ["T1", 2, "reserved"],
+      ["T2", 2, "reserved"],
+      ["T3", 4, "available"],
+      ["T4", 4, "available"],
+      ["T5", 6, "occupied"],
+      ["T6", 4, "available"],
+      ["T7", 2, "reserved"],
+      ["T8", 8, "occupied"],
+    ];
+    initial.forEach(([id, seats, status]) => manager.addTable(id, seats, status));
+
+    // Render tables
+    function renderTables() {
+      const grid = document.getElementById("tables-grid");
+      grid.innerHTML = "";
+      manager.getAllTables().forEach(t => {
+        const card = document.createElement("div");
+        card.className = `table-card ${t.status}`;
+        card.innerHTML = `
+          <div class="id">${t.id}</div>
+          <div class="status">${t.status}</div>
+          <div class="seats">${t.seats} seats</div>
+        `;
+        card.onclick = () => cycleStatus(t.id);
+        grid.appendChild(card);
+      });
+    }
+
+    function cycleStatus(id) {
+      const t = manager.tables.get(id);
+      const order = ["available", "occupied", "reserved"];
+      const next = order[(order.indexOf(t.status) + 1) % 3];
+      manager.updateStatus(id, next);
+      renderTables();
+      showResult(`Table ${id} → ${next}`);
+    }
+
+    function findBestTable() {
+      const size = parseInt(document.getElementById("party-size").value) || 1;
+      const best = manager.findBestTable(size);
+      if (best) {
+        showResult(`Best table for ${size} people: <strong>${best.id}</strong> (${best.seats} seats)`);
+      } else {
+        showResult(`No available table for ${size} people. Consider waiting list.`);
+      }
+    }
+
+    function addToWaiting() {
+      const size = parseInt(document.getElementById("party-size").value) || 1;
+      const id = "P" + Date.now().toString().slice(-4);
+      manager.addToWaitingList({ id, size, arrivedAt: Date.now() });
+      renderWaitingList();
+      const wait = manager.estimateWaitMinutes(size);
+      showResult(`Party of ${size} added to waiting list. Estimated wait: ~${wait} min`);
+    }
+
+    function seatNextParty() {
+      const party = manager.getNextParty();
+      if (!party) {
+        showResult("Waiting list is empty");
+        return;
+      }
+      const best = manager.findBestTable(party.size);
+      if (best) {
+        manager.updateStatus(best.id, "occupied");
+        renderTables();
+        showResult(`Seated party of ${party.size} at <strong>${best.id}</strong>`);
+      } else {
+        // put back if no table
+        manager.waitingList.unshift(party);
+        showResult(`No table available for party of ${party.size}`);
+      }
+      renderWaitingList();
+    }
+
+    function renderWaitingList() {
+      const list = manager.getWaitingList();
+      const el = document.getElementById("waiting-list-content");
+      if (list.length === 0) {
+        el.innerHTML = "No parties waiting";
+        return;
+      }
+      el.innerHTML = list.map(p => `
+        <div class="waiting-item">
+          <span>Party ${p.id} • ${p.size} people</span>
+          <span style="color:#aaa">${Math.round((Date.now() - p.arrivedAt)/60000)} min ago</span>
+        </div>
+      `).join("");
+    }
+
+    function showResult(html) {
+      document.getElementById("result-box").innerHTML = html;
+    }
+
+    // Modal
+    function openAddModal() {
+      // auto suggest next table number
+      const maxNum = Math.max(...manager.getAllTables().map(t => parseInt(t.id.slice(1)) || 0));
+      document.getElementById("new-table-id").value = "T" + (maxNum + 1);
+      document.getElementById("add-modal").classList.add("show");
+    }
+    function closeAddModal() {
+      document.getElementById("add-modal").classList.remove("show");
+    }
+    function saveNewTable() {
+      const id = document.getElementById("new-table-id").value.trim().toUpperCase();
+      const seats = parseInt(document.getElementById("new-table-seats").value) || 4;
+      if (!id) return alert("Please enter a table number");
+      try {
+        manager.addTable(id, seats, "available");
+        renderTables();
+        closeAddModal();
+        showResult(`Added ${id} (${seats} seats)`);
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    // Init
+    document.getElementById("current-date").textContent =
+      new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    renderTables();
+    renderWaitingList();
+  </script>
+</body>
+</html>
