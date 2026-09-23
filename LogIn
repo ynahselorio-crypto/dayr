@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cafe Templado - Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f0f0f;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-card {
+      background: #1a1a1a;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      border: 1px solid #2a2a2a;
+    }
+
+    /* Header */
+    .login-header {
+      background: #141414;
+      text-align: center;
+      padding: 36px 24px 28px;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .login-header h1 {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #f5c518;
+      letter-spacing: 0.5px;
+    }
+
+    /* Body */
+    .login-body {
+      padding: 32px 28px 36px;
+    }
+
+    .login-body h2 {
+      text-align: center;
+      font-size: 1.4rem;
+      color: #ffffff;
+      margin-bottom: 28px;
+      font-weight: 600;
+    }
+
+    /* Role Selection */
+    .role-section {
+      margin-bottom: 24px;
+    }
+
+    .section-label {
+      display: block;
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .role-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .role-btn {
+      flex: 1;
+      padding: 12px 10px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      background: #222;
+      color: #ccc;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-family: inherit;
+    }
+
+    .role-btn:hover {
+      border-color: #f5c518;
+      color: #f5c518;
+      background: #1f1f1f;
+    }
+
+    .role-btn.active {
+      background: rgba(245, 197, 24, 0.12);
+      border-color: #f5c518;
+      color: #f5c518;
+      box-shadow: 0 0 0 1px #f5c518;
+    }
+
+    /* Password Field */
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 16px;
+      color: #777;
+      font-size: 0.95rem;
+      pointer-events: none;
+    }
+
+    .password-wrapper input {
+      width: 100%;
+      padding: 14px 48px 14px 44px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      color: #fff;
+      background: #222;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s;
+      font-family: inherit;
+    }
+
+    .password-wrapper input:focus {
+      border-color: #f5c518;
+      background: #1f1f1f;
+    }
+
+    .password-wrapper input::placeholder {
+      color: #666;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      background: none;
+      border: none;
+      color: #777;
+      cursor: pointer;
+      padding: 6px;
+      font-size: 1rem;
+    }
+
+    .toggle-password:hover {
+      color: #f5c518;
+    }
+
+    /* Sign In Button */
+    .sign-in-btn {
+      width: 100%;
+      padding: 15px;
+      background: #f5c518;
+      color: #111;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.25s, transform 0.15s;
+      font-family: inherit;
+      margin-top: 6px;
+    }
+
+    .sign-in-btn:hover {
+      background: #e0b000;
+    }
+
+    .sign-in-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Forgot Password */
+    .forgot-password {
+      text-align: center;
+      margin-top: 22px;
+    }
+
+    .forgot-password a {
+      color: #f5c518;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .forgot-password a:hover {
+      text-decoration: underline;
+    }
+
+    /* Message */
+    .message {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.9rem;
+      min-height: 20px;
+    }
+
+    .message.success { color: #4caf50; }
+    .message.error { color: #f44336; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: #1a1a1a;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 380px;
+      border: 1px solid #2a2a2a;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 22px 24px;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h3 {
+      color: #f5c518;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: #f5c518;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-body p {
+      color: #aaa;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .modal-body .form-group {
+      margin-bottom: 18px;
+    }
+
+    .modal-body label {
+      display: block;
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+
+    .modal-body input {
+      width: 100%;
+      padding: 13px 16px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      color: #fff;
+      background: #222;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .modal-body input:focus {
+      border-color: #f5c518;
+    }
+
+    .modal-footer {
+      padding: 0 24px 24px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-footer button {
+      flex: 1;
+      padding: 13px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-cancel {
+      background: #222;
+      border: 2px solid #333;
+      color: #ccc;
+    }
+
+    .btn-cancel:hover {
+      border-color: #555;
+      color: #fff;
+    }
+
+    .btn-submit {
+      background: #f5c518;
+      border: none;
+      color: #111;
+    }
+
+    .btn-submit:hover {
+      background: #e0b000;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <!-- Header -->
+      <div class="login-header">
+        <h1>Cafe Templado</h1>
+      </div>
+
+      <!-- Body -->
+      <div class="login-body">
+        <h2>Welcome Back!</h2>
+
+        <div class="role-section">
+          <label class="section-label">Select Role</label>
+          <div class="role-buttons">
+            <button type="button" class="role-btn active" id="adminBtn">Admin</button>
+            <button type="button" class="role-btn" id="cashierBtn">Cashier</button>
+          </div>
+        </div>
+
+        <!-- Password Form -->
+        <form id="loginForm" autocomplete="off">
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="password-wrapper">
+              <i class="fas fa-lock input-icon"></i>
+              <input 
+                type="password" 
+                id="password" 
+                placeholder="Enter your password" 
+                required
+                autocomplete="current-password"
+              >
+              <button type="button" class="toggle-password" id="togglePassword" aria-label="Show password">
+                <i class="fas fa-eye" id="eyeIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="sign-in-btn">
+            <span>Sign In</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </form>
+
+        <div class="forgot-password">
+          <a id="forgotPasswordLink">Forgot Password?</a>
+        </div>
+
+        <div id="loginMessage" class="message"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Reset Password</h3>
+        <button class="modal-close" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Enter your registered contact number or recovery code.</p>
+        <div class="form-group">
+          <label for="recoveryInput">Contact Number / Recovery Code</label>
+          <input type="text" id="recoveryInput" placeholder="Enter contact number or code">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="cancelModal">Cancel</button>
+        <button class="btn-submit" id="submitRecovery">Submit Request</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* USER DATA */
+    const users = [
+      { role: 'admin',   password: 'admin123' },
+      { role: 'cashier', password: 'cashier123' }
+    ];
+
+    /* ROLE SELECTION */
+    const adminBtn = document.getElementById('adminBtn');
+    const cashierBtn = document.getElementById('cashierBtn');
+    let selectedRole = 'admin';
+
+    function setActiveRole(role) {
+      selectedRole = role;
+      if (role === 'admin') {
+        adminBtn.classList.add('active');
+        cashierBtn.classList.remove('active');
+      } else {
+        cashierBtn.classList.add('active');
+        adminBtn.classList.remove('active');
+      }
+    }
+
+    adminBtn.addEventListener('click', () => setActiveRole('admin'));
+    cashierBtn.addEventListener('click', () => setActiveRole('cashier'));
+
+    /* SHOW / HIDE PASSWORD (proper eye / eye-slash) */
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('togglePassword');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    togglePassword.addEventListener('click', () => {
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      
+      eyeIcon.classList.toggle('fa-eye', !isPassword);
+      eyeIcon.classList.toggle('fa-eye-slash', isPassword);
+    });
+
+    /* LINEAR SEARCH */
+    function linearSearch(usersArray, role, password) {
+      for (let i = 0; i < usersArray.length; i++) {
+        if (usersArray[i].role === role && usersArray[i].password === password) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    /* LOGIN */
+    const loginForm = document.getElementById('loginForm');
+    const loginMessage = document.getElementById('loginMessage');
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const password = passwordInput.value.trim();
+
+      if (!password) {
+        showMessage('Please enter your password.', 'error');
+        return;
+      }
+
+      const resultIndex = linearSearch(users, selectedRole, password);
+
+      if (resultIndex !== -1) {
+        showMessage('Welcome, ' + selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1) + '! Login successful.', 'success');
+      } else {
+        showMessage('Incorrect password. Please try again.', 'error');
+        passwordInput.value = '';
+        passwordInput.focus();
+      }
+    });
+
+    function showMessage(text, type) {
+      loginMessage.textContent = text;
+      loginMessage.className = 'message ' + type;
+    }
+
+    /* FORGOT PASSWORD MODAL */
+    const forgotModal = document.getElementById('forgotModal');
+    const forgotLink = document.getElementById('forgotPasswordLink');
+    const closeModal = document.getElementById('closeModal');
+    const cancelModal = document.getElementById('cancelModal');
+    const submitRecovery = document.getElementById('submitRecovery');
+    const recoveryInput = document.getElementById('recoveryInput');
+
+    forgotLink.addEventListener('click', () => {
+      forgotModal.classList.add('show');
+      recoveryInput.value = '';
+      recoveryInput.focus();
+    });
+
+    function closeForgotModal() {
+      forgotModal.classList.remove('show');
+    }
+
+    closeModal.addEventListener('click', closeForgotModal);
+    cancelModal.addEventListener('click', closeForgotModal);
+
+    forgotModal.addEventListener('click', (e) => {
+      if (e.target === forgotModal) closeForgotModal();
+    });
+
+    submitRecovery.addEventListener('click', () => {
+      const value = recoveryInput.value.trim();
+      if (!value) {
+        alert('Please enter your contact number or recovery code.');
+        return;
+      }
+      alert('Your password reset request has been submitted.');
+      closeForgotModal();
+    });
+  </script>
+</body>
+</html>
